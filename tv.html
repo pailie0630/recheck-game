@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#0c110d">
+<title>ReCheck — LIVE LEADERBOARD</title>
+<style>
+:root{color-scheme:dark;--bg:#0c110d;--ink:#f1f4ec;--muted:#929e8b;--lime:#d5ff5f;--line:#ffffff14;--gold:#f6d078;--silver:#c7d5e0;--bronze:#d7a183;font-family:"Pretendard","Noto Sans KR","Malgun Gothic",sans-serif}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;min-height:100dvh;color:var(--ink);background:radial-gradient(ellipse at 36% 48%,#22301d66,transparent 57%),var(--bg);padding:clamp(24px,3vw,64px);display:flex;flex-direction:column;overflow-x:hidden}button,a{font:inherit}button{cursor:pointer}button:focus-visible,a:focus-visible{outline:3px solid var(--lime);outline-offset:5px}button:disabled{cursor:wait;opacity:.5}[hidden]{display:none!important}
+.header{display:flex;justify-content:space-between;align-items:center;gap:24px;padding-bottom:25px;border-bottom:1px solid var(--line)}.brand{display:flex;align-items:center;gap:15px}.brand svg{width:56px;height:56px;flex:none}.brand-name{font-size:clamp(25px,2.4vw,42px);font-weight:900;letter-spacing:-1.6px}.brand-name em{font-style:normal;color:var(--lime)}.brand-caption{display:block;font-size:10px;color:var(--muted);letter-spacing:3px;margin-top:5px}.header-right{display:flex;align-items:center;gap:24px}.date{font-size:14px;color:var(--muted);text-align:right;line-height:1.6}.live{border:1px solid #d5ff5f55;border-radius:30px;padding:10px 16px;font-size:11px;letter-spacing:2px;color:var(--lime);white-space:nowrap}.live i{display:inline-block;width:6px;height:6px;border-radius:50%;background:var(--lime);margin-right:8px;box-shadow:0 0 12px #d5ff5f66}
+.title-row{display:flex;justify-content:space-between;align-items:end;margin:30px 0 26px;gap:16px}.eyebrow{font-size:11px;letter-spacing:3px;color:var(--lime);font-weight:700}.title-row h1{font-size:clamp(30px,3.5vw,62px);line-height:1.16;letter-spacing:-2px;margin:10px 0 0}.title-row h1 span{color:#87917e;font-weight:400}.rules{text-align:right;color:var(--muted);font-size:12px;line-height:1.9;margin:0}.rules b{color:var(--ink);font-weight:500}.layout{display:grid;grid-template-columns:minmax(0,1.8fr) minmax(300px,1fr);gap:clamp(24px,3vw,60px);flex:1;min-height:0}.arena{display:flex;flex-direction:column;min-width:0;position:relative;isolation:isolate}.arena:before{content:"";position:absolute;z-index:-1;left:0;right:0;bottom:10px;height:150px;background:linear-gradient(0deg,#d5ff5f07,transparent),repeating-linear-gradient(90deg,transparent 0 69px,#d5ff5f07 70px 71px);transform:perspective(400px) rotateX(45deg);transform-origin:bottom;pointer-events:none}.stage-label{display:flex;justify-content:space-between;color:#a6b29b;font:10px monospace;letter-spacing:2px;margin:6px 0 12px}.stage-label span:last-child{color:#5d7052}.podium{display:grid;grid-template-columns:1fr 1.08fr 1fr;align-items:end;gap:12px;flex:1;padding:45px 8px 0;min-height:350px}.contestant{min-width:0;text-align:center;--accent:var(--gold)}.contestant[data-slot="2"]{--accent:var(--silver)}.contestant[data-slot="3"]{--accent:var(--bronze)}.player{padding:0 6px 22px}.medal{display:grid;place-items:center;border:1px solid color-mix(in srgb,var(--accent) 50%,transparent);width:48px;height:48px;border-radius:50%;color:var(--accent);font-weight:800;font-size:20px;margin:0 auto 17px;background:color-mix(in srgb,var(--accent) 7%,transparent)}.contestant[data-slot="1"] .medal{box-shadow:0 0 38px #f6d07820;width:60px;height:60px;font-size:26px}.winner-label{font-size:9px;letter-spacing:3px;color:var(--gold);margin-bottom:12px;min-height:12px}.player-name{font-size:clamp(20px,2.5vw,42px);font-weight:800;letter-spacing:-1px;margin:0 0 12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.player-score{font-size:clamp(34px,4vw,64px);font-weight:800;letter-spacing:-2px;line-height:1.1;font-variant-numeric:tabular-nums}.player-score small{display:block;font:9px monospace;color:var(--muted);letter-spacing:3px;margin-top:8px}.player-info{font-size:12px;line-height:1.8;color:#adb8a5;margin-top:14px;min-height:24px}.player-info b{font-weight:500;color:var(--accent);font-variant-numeric:tabular-nums}.block{height:clamp(130px,16vh,190px);border:1px solid color-mix(in srgb,var(--accent) 30%,transparent);border-top:3px solid var(--accent);border-bottom:0;border-radius:8px 8px 0 0;background:linear-gradient(180deg,color-mix(in srgb,var(--accent) 13%,#11180f),#10160f);position:relative;display:flex;justify-content:center;align-items:center;overflow:hidden}.block:after{content:"RECHECK";position:absolute;bottom:14px;font-size:9px;letter-spacing:4px;color:color-mix(in srgb,var(--accent) 40%,transparent)}.block strong{font-size:clamp(65px,8vw,110px);font-weight:900;line-height:1;color:color-mix(in srgb,var(--accent) 23%,transparent);letter-spacing:-7px}.contestant[data-slot="1"] .block{height:clamp(175px,22vh,255px)}.contestant[data-slot="3"] .block{height:clamp(95px,12vh,145px)}.empty .player-name{font-size:clamp(14px,1.5vw,23px);color:#899380;font-weight:500}.empty .player-score{color:#42503b}.empty .medal{opacity:.45}.new-leader .player{animation:leader-in .7s ease-out}@keyframes leader-in{from{opacity:.3;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.challengers{border:1px solid var(--line);border-radius:14px;background:#131a12a8;padding:24px 24px 8px;align-self:stretch;display:flex;flex-direction:column;min-width:0}.board-heading{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:12px}.board-heading h2{font-size:20px;letter-spacing:-.7px;margin:0}.board-heading span{font:10px monospace;letter-spacing:2px;color:#7a8a70}.list-head{display:grid;grid-template-columns:36px 1fr auto;font-size:10px;letter-spacing:1px;color:#748369;border-bottom:1px solid var(--line);padding:14px 0}.list{list-style:none;padding:0;margin:0;flex:1}.ranking-row{display:grid;grid-template-columns:36px minmax(0,1fr) auto;align-items:center;gap:8px;padding:17px 0;border-bottom:1px solid var(--line)}.ranking-row:last-child{border-bottom:0}.row-rank{font:15px monospace;color:#87977b}.row-name{font-size:clamp(15px,1.4vw,23px);font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.row-time{font-size:11px;color:var(--muted);margin-top:6px;font-variant-numeric:tabular-nums}.row-score{text-align:right;font-size:clamp(19px,1.8vw,29px);font-weight:700;font-variant-numeric:tabular-nums}.row-score small{display:block;color:#7d8c72;font:9px monospace;margin-top:4px}.row-empty .row-name{color:#53604c;font-size:13px;font-weight:400}.row-empty .row-score{color:#3a4733}.board-note{font-size:11px;color:#738367;padding:14px 0;margin:0;line-height:1.8}
+.footer{display:flex;justify-content:space-between;align-items:center;gap:20px;padding-top:23px;margin-top:26px;border-top:1px solid var(--line);font-size:11px;color:#8c9b80}.footer strong{font-weight:600;color:#bdc9b2}.connection{display:flex;align-items:center;gap:8px}.connection:before{content:"";width:5px;height:5px;border-radius:50%;background:var(--lime);flex:none}.connection.error:before{background:#f1ae74}.footer-actions{display:flex;gap:8px;align-items:center}.footer-actions button,.footer-actions a{font-size:11px;text-decoration:none;color:#bcc8b2;border:1px solid #ffffff21;background:transparent;padding:9px 12px;border-radius:6px;white-space:nowrap}.footer-actions button:hover,.footer-actions a:hover{border-color:var(--lime);color:var(--lime)}.hint{font:10px monospace;color:#69795f;margin-right:6px}.notice{position:fixed;bottom:28px;left:50%;transform:translateX(-50%);padding:14px 22px;background:#e6efdc;color:#1a2514;border-radius:10px;font-size:13px;z-index:20;max-width:90vw;text-align:center}
+@media(min-width:1600px){.ranking-row{padding:22px 0}.player-info{font-size:16px}.stage-label{font-size:12px}.board-note,.rules,.footer{font-size:14px}}
+@media(max-width:1000px){.layout{grid-template-columns:minmax(0,1.5fr) minmax(260px,1fr);gap:22px}.challengers{padding:18px 18px 5px}.podium{gap:8px;padding:40px 0 0}.player-info{font-size:10px}.hint,.date{display:none}.ranking-row{padding:14px 0}.rules{font-size:11px}.brand svg{width:44px;height:44px}}
+@media(max-width:700px){body{padding:22px 16px}.header{padding-bottom:20px}.brand-caption{font-size:8px;letter-spacing:2px}.live{font-size:9px;padding:8px 10px}.title-row{align-items:start;margin:26px 0}.title-row h1{font-size:32px}.rules{display:none}.layout{grid-template-columns:1fr}.podium{min-height:390px;padding-top:25px}.player-name{font-size:18px}.player-score{font-size:38px}.player-info{font-size:10px}.player{padding:0 2px 18px}.block{height:125px}.contestant[data-slot="1"] .block{height:165px}.contestant[data-slot="3"] .block{height:95px}.challengers{margin-top:22px}.footer{align-items:start;flex-wrap:wrap;gap:16px}.footer-actions{flex-wrap:wrap}.connection{font-size:10px}.eyebrow{font-size:9px}.stage-label{font-size:9px}}
+@media(min-width:1000px) and (min-height:600px){body{height:100dvh;overflow:hidden;padding:clamp(20px,3vh,40px) clamp(28px,3vw,64px)}.header{padding-bottom:20px}.title-row{margin:24px 0}.layout{min-height:0}.podium{min-height:0;padding-top:20px}.challengers{min-height:0}.list{display:grid;grid-template-rows:repeat(7,minmax(0,1fr));min-height:0}.ranking-row{padding:6px 0;min-height:0}.board-note{padding:10px 0;font-size:11px}.footer{padding-top:18px;margin-top:20px}.block{height:clamp(90px,14vh,160px)}.contestant[data-slot="1"] .block{height:clamp(130px,20vh,220px)}.contestant[data-slot="3"] .block{height:clamp(70px,10vh,120px)}}
+@media(min-width:1000px) and (max-height:800px){.title-row h1{font-size:38px}.title-row{margin:18px 0}.header{padding-bottom:15px}.brand svg{width:44px;height:44px}.brand-name{font-size:30px}.player-score{font-size:42px}.player-name{font-size:26px}.medal{margin-bottom:10px;width:36px;height:36px}.contestant[data-slot="1"] .medal{width:44px;height:44px;font-size:22px}.player{padding-bottom:14px}.player-info{margin-top:10px;font-size:11px}.challengers{padding:18px 20px 4px}.row-name{font-size:17px}.row-score{font-size:21px}.row-time{font-size:10px;margin-top:3px}.list-head{padding:9px 0}.board-heading{margin-bottom:6px}.board-note{font-size:10px}.footer{margin-top:14px;padding-top:14px}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+</head>
+<body>
+<header class="header">
+ <div class="brand" aria-label="팀 ReCheck">
+  <svg viewBox="0 0 64 64" fill="none" aria-hidden="true"><rect x="7" y="7" width="50" height="50" rx="14" stroke="#d5ff5f" stroke-width="2" transform="rotate(-8 32 32)"/><path d="m20 32 9 9 17-20" stroke="#d5ff5f" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/><path d="M49 48h7v-7M8 23v-7h7" stroke="#d5ff5f" stroke-width="2"/></svg>
+  <div><div class="brand-name">Re<em>Check</em></div><span class="brand-caption">REAL OR AI CHALLENGE</span></div>
+ </div>
+ <div class="header-right"><div class="date" id="date"></div><div class="live"><i></i>LIVE LEADERBOARD</div></div>
+</header>
+<section class="title-row"><div><span class="eyebrow">THE EYE FOR TRUTH</span><h1>진짜를 알아보는 눈<span>.</span></h1></div><p class="rules"><b>점수가 높을수록, 같은 점수라면 더 빠르게.</b><br>게임 사이트의 공용 순위가 자동으로 반영됩니다.</p></section>
+<main class="layout">
+ <section class="arena" aria-label="상위 3위 시상대"><div class="stage-label"><span>THE PODIUM / TOP 3</span><span>TEAM RECHECK</span></div><div class="podium" id="podium"></div></section>
+ <section class="challengers" aria-labelledby="challengers-heading"><div class="board-heading"><h2 id="challengers-heading">다음 주인공은?</h2><span>RANK 04—10</span></div><div class="list-head"><span>순위</span><span>도전자 / 풀이 시간</span><span>점수</span></div><ol class="list" id="rank-list"></ol><p class="board-note" id="board-note">공용 순위를 불러오고 있습니다.</p></section>
+</main>
+<footer class="footer"><div><strong>이 무대의 다음 주인공에 도전하세요.</strong><div style="margin-top:6px;font-size:10px;letter-spacing:.5px">pailie0630.github.io/recheck-game</div></div><div class="connection" id="connection" role="status">서버 연결 중…</div><div class="footer-actions"><span class="hint">F : FULL SCREEN · R : REFRESH</span><button type="button" id="refresh">새로고침</button><button type="button" id="fullscreen">전체 화면</button><a href="https://pailie0630.github.io/recheck-game/" target="_blank" rel="noopener">게임 열기 ↗</a></div></footer>
+<div class="notice" id="notice" role="status" hidden></div>
+<script>
+const config={url:'https://zcaifppfvxekpmzozrqt.supabase.co',key:'sb_publishable_N98cugAOQCMXLgjEosmbgQ_nSapINEw'};
+const element=id=>document.getElementById(id);
+let refreshTimer=null,busy=false,lastSignature=null,lastLeader=null,noticeTimer=null;
+function node(tag,className,text){const value=document.createElement(tag);if(className)value.className=className;if(text!==undefined)value.textContent=text;return value}
+function duration(milliseconds){if(!Number.isFinite(milliseconds)||milliseconds<0)return '시간 기록 없음';const minutes=Math.floor(milliseconds/60000);const seconds=((milliseconds%60000)/1000).toFixed(3);return minutes?minutes+'분 '+seconds+'초':seconds+'초'}
+function rankOf(row,position){return Number.isInteger(row?.rank)&&row.rank>0?row.rank:position+1}
+function render(rows){
+ const podium=element('podium');podium.replaceChildren();
+ for(const position of [1,0,2]){
+  const row=rows[position],slot=position+1,rank=rankOf(row,position),card=node('article','contestant'+(row?'':' empty'));card.dataset.slot=slot;
+  card.setAttribute('aria-label',row?rank+'위 '+row.name:slot+'위 기록 대기');
+  const player=node('div','player'),shared=row&&rows.filter((entry,index)=>rankOf(entry,index)===rank).length>1;
+  player.append(node('div','winner-label',position===0?'TOP OF THE GAME':'\u00a0'),node('div','medal',shared?'='+rank:String(rank)),node('h2','player-name',row?row.name:'도전자를 기다려요'));
+  const score=node('div','player-score',row?row.score.toLocaleString('ko-KR'):'—');score.append(node('small','', 'POINTS'));player.append(score);
+  const info=node('div','player-info');if(row){info.append(node('b','',duration(row.elapsedMs)),node('div','',Number.isFinite(row.accuracy)?'정답률 '+row.accuracy+'%':'정답률 기록 없음'))}else info.textContent='첫 기록을 남겨보세요';player.append(info);
+  const block=node('div','block');block.setAttribute('aria-hidden','true');block.append(node('strong','',String(slot)));card.append(player,block);podium.append(card);
+ }
+ const list=element('rank-list');list.replaceChildren();
+ for(let position=3;position<10;position++){
+  const row=rows[position],item=node('li','ranking-row'+(row?'':' row-empty'));
+  item.append(node('span','row-rank',String(rankOf(row,position)).padStart(2,'0')));
+  const person=node('div');person.append(node('div','row-name',row?row.name:'아직 비어 있는 자리'));if(row)person.append(node('div','row-time',duration(row.elapsedMs)));item.append(person);
+  const score=node('div','row-score',row?row.score.toLocaleString('ko-KR'):'—');if(row)score.append(node('small','','PTS'));item.append(score);list.append(item);
+ }
+ element('board-note').textContent=rows.length?'현재 공용 순위 '+rows.length+'개 기록 · 30초마다 자동 갱신':'아직 등록된 기록이 없습니다. 첫 도전을 기다립니다.';
+ const leader=rows[0]?JSON.stringify([rows[0].name,rows[0].score,rows[0].elapsedMs,rows[0].time]):null;
+ if(lastLeader&&leader&&lastLeader!==leader){podium.querySelector('[data-slot="1"]').classList.add('new-leader');notify('새로운 선두 기록이 등장했어요!')}
+ lastLeader=leader;
+}
+function normalize(rows){
+ if(!Array.isArray(rows))throw new Error('순위 데이터 형식이 올바르지 않습니다.');
+ return rows.slice(0,100).map(row=>{if(!row||typeof row.name!=='string'||!Number.isFinite(row.score))throw new Error('순위 기록을 확인할 수 없습니다.');return {...row,name:row.name.slice(0,40),elapsedMs:Number.isFinite(row.elapsedMs)?row.elapsedMs:null}});
+}
+async function refresh(){
+ if(busy)return;busy=true;clearTimeout(refreshTimer);element('refresh').disabled=true;
+ const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),15000);
+ try{
+  const response=await fetch(config.url+'/rest/v1/rpc/recheck_rankings',{method:'POST',headers:{apikey:config.key,'Content-Type':'application/json'},body:'{}',cache:'no-store',signal:controller.signal});
+  if(!response.ok)throw new Error('서버 응답 '+response.status);
+  const result=await response.json(),rows=normalize(result.rows),signature=JSON.stringify(rows);
+  if(signature!==lastSignature){render(rows);lastSignature=signature}
+  element('connection').classList.remove('error');element('connection').textContent='최근 갱신 '+new Date().toLocaleTimeString('ko-KR',{hour12:false})+' · 30초 자동 갱신';
+ }catch(error){element('connection').classList.add('error');element('connection').textContent=lastSignature===null?'연결 실패 · 30초 후 다시 시도합니다':'연결 지연 · 마지막으로 받은 순위 표시 중';if(lastSignature===null)element('board-note').textContent='인터넷 연결을 확인하거나 새로고침을 눌러 주세요.'}
+ finally{clearTimeout(timeout);busy=false;element('refresh').disabled=false;refreshTimer=setTimeout(refresh,30000)}
+}
+function notify(message){clearTimeout(noticeTimer);element('notice').textContent=message;element('notice').hidden=false;noticeTimer=setTimeout(()=>{element('notice').hidden=true},3500)}
+async function toggleFullscreen(){try{if(document.fullscreenElement)await document.exitFullscreen();else if(document.documentElement.requestFullscreen)await document.documentElement.requestFullscreen();else notify('이 브라우저에서는 전체 화면 버튼을 지원하지 않습니다. 브라우저의 전체 화면 기능을 사용해 주세요.')}catch{notify('전체 화면을 시작하지 못했어요. 브라우저에서 F11을 눌러 보세요.')}}
+element('refresh').onclick=refresh;element('fullscreen').onclick=toggleFullscreen;
+document.addEventListener('fullscreenchange',()=>{element('fullscreen').textContent=document.fullscreenElement?'전체 화면 종료':'전체 화면'});
+document.addEventListener('keydown',event=>{if(event.repeat||event.ctrlKey||event.altKey||event.metaKey)return;if(event.key.toLowerCase()==='f'){event.preventDefault();toggleFullscreen()}if(event.key.toLowerCase()==='r'){event.preventDefault();refresh()}});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)refresh()});window.addEventListener('online',refresh);
+element('date').textContent=new Intl.DateTimeFormat('ko-KR',{month:'long',day:'numeric',weekday:'long'}).format(new Date());
+render([]);refresh();
+</script>
+</body>
+</html>
