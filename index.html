@@ -74,15 +74,44 @@ const startBeforeServer=start;
 start=function(nextMode=mode){serverResultSaved=false;const result=startBeforeServer(nextMode);if(serverCatalogReady&&introScreen.hidden){activeServerRun=serverRequest('/api/game/start',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({ids:deck.map(item=>item.id)})});activeServerRun.catch(()=>{})}return result};
 showRankings=async function(){show('<h2>공용 순위</h2><p>서버에서 기록을 불러오고 있어요…</p>');try{const data=await serverRequest('/api/rankings');if(!el('modal').open)return;el('modalbody').innerHTML='<h2>공용 순위</h2><p class="ranking-note">서버에 저장된 점수순 기록입니다.</p>'+(data.rows.length?'<table class="rank-table"><thead><tr><th>순위</th><th>닉네임</th><th>점수</th><th>정답률</th></tr></thead><tbody>'+data.rows.map((item,position)=>'<tr><td>'+(position+1)+'</td><td>'+escapeText(item.name)+'</td><td>'+item.score+'</td><td>'+item.accuracy+'%</td></tr>').join('')+'</tbody></table>':'<p>아직 기록이 없어요.</p>')}catch(error){el('modalbody').innerHTML='<h2>순위 연결 확인</h2><p>'+escapeText(error.message)+'</p>'}};
 el('intro-rank').onclick=showRankings;rankingsButton.onclick=showRankings;
+let questionAnswerSaves=[];
+const startBeforeQuestionStats=start;
+start=function(nextMode=mode){questionAnswerSaves=[];return startBeforeQuestionStats(nextMode)};
+const answerBeforeQuestionStats=answer;
+answer=function(value){
+ if(locked||!ready)return;
+ const item=deck[index],runPromise=activeServerRun;
+ answerBeforeQuestionStats(value);
+ const panel=document.createElement('div');panel.className='question-stats';panel.setAttribute('role','status');panel.style.cssText='margin-top:14px;padding:12px;border:1px solid #ddd;border-radius:10px';
+ const status=document.createElement('div');const retry=document.createElement('button');retry.textContent='기록 저장 다시 시도';retry.hidden=true;panel.append(status,retry);el('feedback').append(panel);
+ let saving=null;
+ async function save(){
+  if(saving)return saving;
+  saving=(async()=>{
+   retry.hidden=true;status.textContent='전체 플레이 기록을 불러오는 중…';
+   try{
+    if(!runPromise)throw new Error('게임을 다시 시작해 주세요.');
+    const run=await runPromise;
+    const stats=await serverRequest('/api/game/answer',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({runId:run.runId,id:item.id,choice:value})});
+    status.textContent='전체 정답률 '+stats.accuracy+'% · '+stats.total+'회 풀이 (정답 '+stats.correct+'회)\n실제 선택 '+stats.real+'회 · AI 선택 '+stats.ai+'회 · 내 답안 포함';
+    status.style.whiteSpace='pre-line';
+   }catch(error){status.textContent='기록을 저장하지 못했어요. '+error.message;retry.hidden=false;throw error}
+  })();
+  try{return await saving}finally{saving=null}
+ }
+ const entry={save,promise:null};entry.promise=save();entry.promise.catch(()=>{});questionAnswerSaves.push(entry);
+ retry.onclick=()=>{entry.promise=save();entry.promise.catch(()=>{})};
+};
 finish=function(){
  finishWithoutRanking();const result=document.querySelector('.result');if(!result||serverResultSaved)return;serverResultSaved=true;
- const runPromise=activeServerRun;const answers=history.map(entry=>({id:entry.item.id,choice:entry.correct?entry.item.real:!entry.item.real}));const name=playerNickname;
+ const runPromise=activeServerRun;const saves=questionAnswerSaves.slice();const answers=history.map(entry=>({id:entry.item.id,choice:entry.correct?entry.item.real:!entry.item.real}));const name=playerNickname;
  result.querySelector('strong').textContent='…';result.querySelector('h2').textContent='서버에서 정답을 확인하고 있어요.';
  const message=document.createElement('p');message.className='ranking-note';message.setAttribute('role','status');result.append(message);
  const retry=document.createElement('button');retry.textContent='채점 다시 시도';retry.hidden=true;result.append(retry);
  const rankings=document.createElement('button');rankings.className='result-rank';rankings.textContent='공용 순위 확인';rankings.onclick=showRankings;result.append(rankings);
  async function submit(){retry.hidden=true;message.textContent='답안 제출 중…';try{if(!runPromise)throw new Error('게임을 다시 시작해 주세요.');const run=await runPromise;const grade=await serverRequest('/api/game/result',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({runId:run.runId,name,answers})});result.querySelector('strong').textContent=grade.accuracy+'%';result.querySelector('h2').textContent='최종 정답률 '+grade.accuracy+'%';result.querySelector('p').textContent=grade.total+'문제 중 '+grade.correct+'개 정답 · '+grade.score+'점';message.textContent='서버 채점 완료 · 기록을 저장했어요.';score=grade.score;el('score').innerHTML=score+' <small>PTS</small>'}catch(error){result.querySelector('h2').textContent='서버 채점을 완료하지 못했어요.';message.textContent=error.message;retry.hidden=false}}
- retry.onclick=submit;submit();
+ const submitWithRecords=async()=>{retry.hidden=true;message.textContent='문제별 기록 저장 중…';try{await Promise.all(saves.map(entry=>entry.promise.catch(()=>entry.save())));await submit()}catch(error){message.textContent='기록 저장 실패: '+error.message;retry.hidden=false}};
+ retry.onclick=submitWithRecords;submitWithRecords();
 };
 el('real').onclick=()=>answer(true);el('ai').onclick=()=>answer(false);el('next').onclick=()=>{index++;index<deck.length?render():finish()};document.querySelectorAll('[data-mode]').forEach(button=>button.onclick=()=>start(button.dataset.mode));el('close').onclick=()=>el('modal').close();el('help').onclick=()=>show('<h2>실제일까, AI일까?</h2><p>사진이나 영상을 살펴보고 실제 촬영인지 AI 생성인지 골라보세요. 영상은 직접 재생할 수 있어요.</p><p>정답은 100점, 연속 정답마다 25점씩 추가되며 최대 200점입니다. 제한 시간은 없습니다. 키보드 1은 실제, 2는 AI, Enter는 다음 문제입니다.</p><p>모드를 바꾸면 새 게임이 시작됩니다. 최고 점수는 이 브라우저에 저장됩니다.</p>');el('sources').onclick=()=>show('<h2>자료와 판별 기준</h2><p>실제 사진: Unsplash 사진 자료. 실제 영상: MDN CC0 꽃 영상. AI 영상: <a href="https://openai.com/index/sora/" target="_blank" rel="noopener">OpenAI Sora 공개 샘플</a>. AI 사진: 이 게임을 위해 생성한 이미지.</p><p>정답은 제작 출처에 따른 분류입니다. 해설의 관찰 포인트는 확정적인 AI 판별법이 아닙니다. 외부 자료는 네트워크 연결이 필요합니다.</p>');document.addEventListener('keydown',event=>{if(el('modal').open||event.repeat||!introScreen.hidden)return;if(event.key==='1')answer(true);if(event.key==='2')answer(false);if(event.key==='Enter'&&!el('next').hidden)el('next').click()});serverRequest=async function(route,options={}){
  const config={url:'https://zcaifppfvxekpmzozrqt.supabase.co',key:'sb_publishable_N98cugAOQCMXLgjEosmbgQ_nSapINEw'};
@@ -91,6 +120,7 @@ el('real').onclick=()=>answer(true);el('ai').onclick=()=>answer(false);el('next'
  if(route==='/api/questions')operation='recheck_questions_list';
  else if(route==='/api/rankings')operation='recheck_rankings';
  else if(route==='/api/game/start'){operation='recheck_start';payload={p_ids:input.ids}}
+ else if(route==='/api/game/answer'){operation='recheck_answer';payload={p_run_id:input.runId,p_question_id:String(input.id),p_choice:input.choice}}
  else if(route==='/api/game/result'){operation='recheck_finish';payload={p_run_id:input.runId,p_answers:input.answers,p_name:input.name}}
  else throw new Error('지원하지 않는 게임 기능입니다.');
  const response=await fetch(config.url+'/rest/v1/rpc/'+operation,{method:'POST',headers:{apikey:config.key,'Content-Type':'application/json'},body:JSON.stringify(payload),signal:AbortSignal.timeout(30000)});
