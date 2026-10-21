@@ -62,7 +62,7 @@ function render(rows){
   const person=node('div');person.append(node('div','row-name',row?row.name:'아직 비어 있는 자리'));if(row)person.append(node('div','row-time',duration(row.elapsedMs)));item.append(person);
   const score=node('div','row-score',row?row.score.toLocaleString('ko-KR'):'—');if(row)score.append(node('small','','PTS'));item.append(score);list.append(item);
  }
- element('board-note').textContent=rows.length?'현재 공용 순위 '+rows.length+'개 기록 · 5초마다 자동 갱신':'아직 등록된 기록이 없습니다. 첫 도전을 기다립니다.';
+ element('board-note').textContent=rows.length?'현재 공용 순위 '+rows.length+'개 기록':'아직 등록된 기록이 없습니다. 첫 도전을 기다립니다.';
  const leader=rows[0]?JSON.stringify([rows[0].name,rows[0].score,rows[0].elapsedMs,rows[0].time]):null;
  if(lastLeader&&leader&&lastLeader!==leader){podium.querySelector('[data-slot="1"]').classList.add('new-leader');notify('새로운 선두 기록이 등장했어요!')}
  lastLeader=leader;
@@ -79,7 +79,7 @@ async function refresh(){
   if(!response.ok)throw new Error('서버 응답 '+response.status);
   const result=await response.json(),rows=normalize(result.rows),signature=JSON.stringify(rows);
   if(signature!==lastSignature){render(rows);lastSignature=signature}
-  element('connection').classList.remove('error');element('connection').textContent='최근 갱신 '+new Date().toLocaleTimeString('ko-KR',{hour12:false})+' · 5초 자동 갱신';
+  element('connection').classList.remove('error');element('connection').textContent='최근 갱신 '+new Date().toLocaleTimeString('ko-KR',{hour12:false});
  }catch(error){element('connection').classList.add('error');element('connection').textContent=lastSignature===null?'연결 실패 · 5초 후 다시 시도합니다':'연결 지연 · 마지막으로 받은 순위 표시 중';if(lastSignature===null)element('board-note').textContent='인터넷 연결을 확인하거나 새로고침을 눌러 주세요.'}
  finally{clearTimeout(timeout);busy=false;element('refresh').disabled=false;refreshTimer=setTimeout(refresh,5000)}
 }
